@@ -50,33 +50,22 @@ export class SnakeStore extends ComponentStore<ISnakeState> {
   private getUpdatedSnake(snake: ISnake, cells: ISnakeCell[], direction: Directions) {
     snake.elementsPosition = snake.elementsPosition.map((el, index, arr) => {
       if (index === 0) {
-        let offset = 0;
-        //todo optimize smh ?
+        let moveContext = { isXAxis: true, isMovePositive: true, isOffsetPositive: true, x: 0, y: 0 };
 
         if (direction === 'up') {
-          if (!cells.find(cell => cell.position.x === el.x && cell.position.y === el.y - 1)) {
-            offset = LENGTH_Y;
-          }
-          return { x: el.x, y: el.y - 1 + offset };
+          moveContext = { isXAxis: false, isMovePositive: false, isOffsetPositive: true, x: el.x, y: el.y };
         }
         if (direction === 'right') {
-          if (!cells.find(cell => cell.position.x === el.x + 1 && cell.position.y === el.y)) {
-            offset = -LENGTH_X;
-          }
-          return { x: el.x + 1 + offset, y: el.y };
+          moveContext = { isXAxis: true, isMovePositive: true, isOffsetPositive: false, x: el.x, y: el.y };
         }
         if (direction === 'down') {
-          if (!cells.find(cell => cell.position.x === el.x && cell.position.y === el.y + 1)) {
-            offset = -LENGTH_Y;
-          }
-          return { x: el.x, y: el.y + 1 + offset };
+          moveContext = { isXAxis: false, isMovePositive: true, isOffsetPositive: false, x: el.x, y: el.y };
         }
         if (direction === 'left') {
-          if (!cells.find(cell => cell.position.x === el.x - 1 && cell.position.y === el.y)) {
-            offset = LENGTH_X;
-          }
-          return { x: el.x - 1 + offset, y: el.y };
+          moveContext = { isXAxis: true, isMovePositive: false, isOffsetPositive: true, x: el.x, y: el.y };
         }
+
+        return this.getHeadElementPosition(moveContext, LENGTH_X, LENGTH_Y, cells);
       }
       return arr[index - 1];
     });
@@ -84,14 +73,17 @@ export class SnakeStore extends ComponentStore<ISnakeState> {
     return Object.assign({}, snake);
   }
 
-  private getCellsOffset({ x, y }: IPosition, offsetLength: number, cells: ISnakeCell[]) {
-    let offset = 0;
+  private getHeadElementPosition({ isXAxis, isMovePositive, isOffsetPositive, x, y },
+                                 offsetX: number, offsetY: number, cells: ISnakeCell[]): IPosition {
+    let offset = isMovePositive ? 1 : -1;
 
-    if (!cells.find(cell => cell.position.x === x && cell.position.y === y)) {
-      offset = offsetLength;
+    if (!cells.find(cell => cell.position.x === x + ((isXAxis ? 1 : 0) * isMovePositive ? 1 : -1)
+      && cell.position.y === y + ((isXAxis ? 0 : 1) * isMovePositive ? 1 : -1))
+    ) {
+      offset += (isXAxis ? offsetX : offsetY) * (isOffsetPositive ? 1 : -1);
     }
 
-    return offset;
+    return isXAxis ? { x: x + offset, y: y } : { x: x, y: y + offset };
   }
 
   private getValidDirection(currentDirection: Directions, newDirection: Directions): Directions {
