@@ -1,0 +1,16 @@
+export interface ISnake {
+  elementsPosition: IPosition[];
+}
+
+export interface ISnakeCell {
+  hasElement: boolean;
+  position: IPosition;
+}
+
+export interface IPosition {
+  x: number;
+  y: number;
+}
+
+export type Directions = 'up' | 'right' | 'down' | 'left';
+

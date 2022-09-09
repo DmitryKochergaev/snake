@@ -1,0 +1,10 @@
+<div class="snake">
+  <ng-container *ngIf="cells$ | async as cells">
+    <app-snake-cell
+      *ngFor="let cell of cells"
+      [position]="cell.position"
+      [hasElement]="cell.hasElement"
+    >
+    </app-snake-cell>
+  </ng-container>
+</div>

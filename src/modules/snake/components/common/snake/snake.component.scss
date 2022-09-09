@@ -1,0 +1,20 @@
+:host {
+  //width: 100%;
+  //display: flex;
+  //justify-content: center;
+}
+
+.snake {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 30px);
+  grid-auto-rows: 30px;
+
+
+
+
+  width: 100%;
+  max-width: 500px;
+  min-height: 500px;
+  border: 5px solid #3d8249;
+  background-color: rgb(27, 27, 29);
+}
