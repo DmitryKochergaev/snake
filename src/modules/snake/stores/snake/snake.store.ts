@@ -1,14 +1,16 @@
 import { Injectable } from "@angular/core";
 import { ComponentStore } from "@ngrx/component-store";
 import { Directions, IPosition, ISnake, ISnakeCell } from "../../models/snake.model";
-import {  Observable, tap, withLatestFrom } from "rxjs";
+import { Observable, tap, withLatestFrom } from "rxjs";
 
 export interface ISnakeState {
   cells: ISnakeCell[];
   snake: ISnake | null;
+  currentDirection: Directions | null;
 }
 
 const LENGTH_X = 16; // todo make dynamic
+const LENGTH_Y = 17;
 
 @Injectable()
 export class SnakeStore extends ComponentStore<ISnakeState> {
@@ -21,6 +23,7 @@ export class SnakeStore extends ComponentStore<ISnakeState> {
     super({
       cells: [],
       snake: null,
+      currentDirection: null,
     });
 
     this.onSnakeUpdate(this.snake$);
@@ -34,33 +37,74 @@ export class SnakeStore extends ComponentStore<ISnakeState> {
   });
 
   //todo canMove ?
-  public readonly moveSnake = this.updater((state, direction: Directions) => {
+  public readonly moveSnake = this.updater((state, newDirection: Directions) => {
+    let validDirection = this.getValidDirection(state.currentDirection, newDirection);
+
     return {
       ...state,
-      snake: this.getUpdatedSnake(state.snake, direction),
+      currentDirection: validDirection,
+      snake: this.getUpdatedSnake(state.snake, state.cells, validDirection),
     };
   });
 
-  private getUpdatedSnake(snake: ISnake, direction: Directions) {
+  private getUpdatedSnake(snake: ISnake, cells: ISnakeCell[], direction: Directions) {
     snake.elementsPosition = snake.elementsPosition.map((el, index, arr) => {
       if (index === 0) {
+        let offset = 0;
+        //todo optimize smh ?
+
         if (direction === 'up') {
-          return { x: el.x, y: el.y - 1 };
+          if (!cells.find(cell => cell.position.x === el.x && cell.position.y === el.y - 1)) {
+            offset = LENGTH_Y;
+          }
+          return { x: el.x, y: el.y - 1 + offset };
         }
         if (direction === 'right') {
-          return { x: el.x + 1, y: el.y };
+          if (!cells.find(cell => cell.position.x === el.x + 1 && cell.position.y === el.y)) {
+            offset = -LENGTH_X;
+          }
+          return { x: el.x + 1 + offset, y: el.y };
         }
         if (direction === 'down') {
-          return { x: el.x, y: el.y + 1 };
+          if (!cells.find(cell => cell.position.x === el.x && cell.position.y === el.y + 1)) {
+            offset = -LENGTH_Y;
+          }
+          return { x: el.x, y: el.y + 1 + offset };
         }
         if (direction === 'left') {
-          return { x: el.x - 1, y: el.y };
+          if (!cells.find(cell => cell.position.x === el.x - 1 && cell.position.y === el.y)) {
+            offset = LENGTH_X;
+          }
+          return { x: el.x - 1 + offset, y: el.y };
         }
       }
       return arr[index - 1];
     });
 
     return Object.assign({}, snake);
+  }
+
+  private getCellsOffset({ x, y }: IPosition, offsetLength: number, cells: ISnakeCell[]) {
+    let offset = 0;
+
+    if (!cells.find(cell => cell.position.x === x && cell.position.y === y)) {
+      offset = offsetLength;
+    }
+
+    return offset;
+  }
+
+  private getValidDirection(currentDirection: Directions, newDirection: Directions): Directions {
+    //todo make ENUM of opposites direction in model
+    if (currentDirection === 'up' && newDirection === 'down'
+      || currentDirection === 'right' && newDirection === 'left'
+      || currentDirection === 'down' && newDirection === 'up'
+      || currentDirection === 'left' && newDirection === 'right'
+    ) {
+      return currentDirection;
+    }
+
+    return newDirection;
   }
 
   public setCells(length: number): void {
@@ -111,7 +155,7 @@ export class SnakeStore extends ComponentStore<ISnakeState> {
   private getUpdatedCells(cells: ISnakeCell[], snake: ISnake) {
     return cells.map(cell => ({
       ...cell,
-      hasElement: snake.elementsPosition.findIndex(el => cell.position.x === el.x && cell.position.y === el.y) !== -1,
+      hasElement: Boolean(snake.elementsPosition.find(el => cell.position.x === el.x && cell.position.y === el.y)),
     }));
   }
 

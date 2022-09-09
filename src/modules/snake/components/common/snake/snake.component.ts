@@ -11,7 +11,7 @@ import { Directions } from "../../../models/snake.model";
 })
 export class SnakeComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  @Input() speed = 600;
+  @Input() speed = 500;
 
   public cells$ = this.snakeStore.cells$;
 
@@ -24,7 +24,7 @@ export class SnakeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.snakeStore.setCells(272); //todo adaptive
-    this.snakeStore.setSnake(8, 5, 5);
+    this.snakeStore.setSnake(4, 5, 5);
   }
 
   ngAfterViewInit(): void {
@@ -33,17 +33,17 @@ export class SnakeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private startGame(): void {
     interval(this.speed).pipe(
-      tap(() => this.draw()),
+      tap(() => this.tick()),
       takeUntil(this.destroy$),
     ).subscribe();
   }
 
-  private draw(): void {
+  private tick(): void {
     this.snakeStore.moveSnake(this.direction);
   }
 
   @HostListener('document:keydown', ['$event'])
-  handleKeyboardEvent(event: KeyboardEvent) {//todo naming
+  onKeyboardPress(event: KeyboardEvent) {
     switch (event.key) {
       case 'ArrowUp':
         this.direction = 'up';
@@ -66,6 +66,4 @@ export class SnakeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.destroy$.next(true);
     this.destroy$.complete();
   }
-
-
 }
