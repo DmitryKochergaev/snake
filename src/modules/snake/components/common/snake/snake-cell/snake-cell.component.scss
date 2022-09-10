@@ -1,9 +1,8 @@
 .snake-cell {
-  color: white;
   height: 100%;
   border: 1px solid rgba(95, 95, 95, 0.53);
 
   &_with-element {
-    background-color: green;
+    background-color: white;
   }
 }

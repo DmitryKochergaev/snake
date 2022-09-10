@@ -9,8 +9,8 @@ export interface ISnakeState {
   currentDirection: Directions | null;
 }
 
-const LENGTH_X = 16; // todo make dynamic
-const LENGTH_Y = 17;
+const LENGTH_X = 20; // todo make dynamic
+const LENGTH_Y = 20;
 
 @Injectable()
 export class SnakeStore extends ComponentStore<ISnakeState> {
@@ -138,17 +138,25 @@ export class SnakeStore extends ComponentStore<ISnakeState> {
       } else {
         x++;
       }
-      elementsPosition.push({ x, y });
+      elementsPosition.push({ x, y, distanceFromHead: i });
     }
 
     return elementsPosition;
   }
 
   private getUpdatedCells(cells: ISnakeCell[], snake: ISnake) {
-    return cells.map(cell => ({
-      ...cell,
-      hasElement: Boolean(snake.elementsPosition.find(el => cell.position.x === el.x && cell.position.y === el.y)),
-    }));
+    return cells.map(cell => {
+      const snakeElementIndex = snake.elementsPosition.findIndex(el => cell.position.x === el.x && cell.position.y === el.y);
+
+      return {
+        ...cell,
+        hasElement: snakeElementIndex !== -1,
+        position: {
+          ...cell.position,
+          distanceFromHead: snakeElementIndex,
+        }
+      };
+    });
   }
 
   public readonly onSnakeUpdate = this.effect((snake$: Observable<ISnake>) => {

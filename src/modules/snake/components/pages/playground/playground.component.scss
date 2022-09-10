@@ -1,6 +1,58 @@
 .playground {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 45px;
+  padding-top: 30px;
   min-height: 100vh;
-  place-items: center;
   background-color: rgb(18 18 20);
+
+  svg {
+    display: block;
+    font: 10em 'Montserrat';
+    width: 100%;
+  }
+
+  .text-copy {
+    fill: none;
+    stroke: white;
+    stroke-dasharray: 6% 29%;
+    stroke-width: 5px;
+    animation: stroke-offset 9s infinite linear;
+
+    &:nth-child(1) {
+      stroke: #4D163D;
+      animation-delay: -1;
+    }
+
+    &:nth-child(2) {
+      stroke: #840037;
+      animation-delay: -2s;
+    }
+
+    &:nth-child(3) {
+      stroke: #BD0034;
+      animation-delay: -3s;
+    }
+
+    &:nth-child(4) {
+      stroke: #BD0034;
+      animation-delay: -4s;
+    }
+
+    &:nth-child(5) {
+      stroke: #8d31fd;
+      animation-delay: -5s;
+    }
+
+  }
+}
+
+@keyframes stroke-offset {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -35%;
+  }
 }

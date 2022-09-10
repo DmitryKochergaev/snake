@@ -10,6 +10,7 @@ export interface ISnakeCell {
 export interface IPosition {
   x: number;
   y: number;
+  distanceFromHead?: number;
 }
 
 export type Directions = 'up' | 'right' | 'down' | 'left';

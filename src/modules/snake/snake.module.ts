@@ -4,13 +4,15 @@ import { PlaygroundComponent } from './components/pages/playground/playground.co
 import { SnakeComponent } from './components/common/snake/snake.component';
 import { RouterModule } from "@angular/router";
 import { SnakeCellComponent } from './components/common/snake/snake-cell/snake-cell.component';
+import { SnakeCellShadowBoxDirective } from './components/common/snake/snake-cell/snake-cell-shadow-box.directive';
 
 
 @NgModule({
   declarations: [
     PlaygroundComponent,
     SnakeComponent,
-    SnakeCellComponent
+    SnakeCellComponent,
+    SnakeCellShadowBoxDirective
   ],
   imports: [
     CommonModule,

@@ -1,3 +1,8 @@
-<div class="snake-cell" [ngClass]="{ 'snake-cell_with-element': hasElement }">
-  <!--  {{ position.x }} {{ position.y }}-->
+<div
+  class="snake-cell"
+  [ngClass]="{ 'snake-cell_with-element': hasElement }"
+  appSnakeCellShadowBox
+  [distanceFromHead]="position.distanceFromHead"
+  [hasElement]="hasElement"
+>
 </div>

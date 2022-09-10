@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { IPosition } from "../../../../models/snake.model";
 
 @Component({
@@ -6,7 +6,7 @@ import { IPosition } from "../../../../models/snake.model";
   templateUrl: './snake-cell.component.html',
   styleUrls: ['./snake-cell.component.scss']
 })
-export class SnakeCellComponent implements OnInit {
+export class SnakeCellComponent {
 
   @Input() position: IPosition;
 
@@ -14,8 +14,4 @@ export class SnakeCellComponent implements OnInit {
 
   constructor() {
   }
-
-  ngOnInit(): void {
-  }
-
 }
