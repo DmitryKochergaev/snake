@@ -1,6 +1,9 @@
 <div
   class="snake-cell"
-  [ngClass]="{ 'snake-cell_with-element': hasElement }"
+  [ngClass]="{
+   'snake-cell_with-element': hasElement,
+   'snake-cell_with-buff': hasBuff
+    }"
   appSnakeCellShadowBox
   [distanceFromHead]="position.distanceFromHead"
   [hasElement]="hasElement"

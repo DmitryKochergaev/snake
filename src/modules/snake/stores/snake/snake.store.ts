@@ -1,12 +1,13 @@
 import { Injectable } from "@angular/core";
 import { ComponentStore } from "@ngrx/component-store";
 import { Directions, IPosition, ISnake, ISnakeCell } from "../../models/snake.model";
-import { Observable, tap, withLatestFrom } from "rxjs";
+import { filter, Observable, tap, withLatestFrom } from "rxjs";
 
 export interface ISnakeState {
   cells: ISnakeCell[];
   snake: ISnake | null;
   currentDirection: Directions | null;
+  hasBuff: boolean;
 }
 
 const LENGTH_X = 20; // todo make dynamic
@@ -19,11 +20,14 @@ export class SnakeStore extends ComponentStore<ISnakeState> {
 
   public readonly snake$ = this.select(({ snake }) => snake);
 
+  public readonly hasBuff$ = this.select(({ hasBuff }) => hasBuff);
+
   constructor() {
     super({
       cells: [],
       snake: null,
       currentDirection: null,
+      hasBuff: false,
     });
 
     this.onSnakeUpdate(this.snake$);
@@ -32,6 +36,7 @@ export class SnakeStore extends ComponentStore<ISnakeState> {
   public readonly updateCells = this.updater((state, cells: ISnakeCell[]) => {
     return {
       ...state,
+      hasBuff: true,
       cells,
     };
   });
@@ -39,15 +44,19 @@ export class SnakeStore extends ComponentStore<ISnakeState> {
   //todo canMove ?
   public readonly moveSnake = this.updater((state, newDirection: Directions) => {
     let validDirection = this.getValidDirection(state.currentDirection, newDirection);
+    let { snake, isSnakeOnBuff } = this.getUpdatedSnake(state.snake, state.cells, validDirection);
 
     return {
       ...state,
       currentDirection: validDirection,
-      snake: this.getUpdatedSnake(state.snake, state.cells, validDirection),
+      hasBuff: !isSnakeOnBuff,
+      snake,
     };
   });
 
   private getUpdatedSnake(snake: ISnake, cells: ISnakeCell[], direction: Directions) {
+    let isSnakeOnBuff = false;
+
     snake.elementsPosition = snake.elementsPosition.map((el, index, arr) => {
       if (index === 0) {
         let moveContext = { isXAxis: true, isMovePositive: true, isOffsetPositive: true, x: 0, y: 0 };
@@ -65,12 +74,19 @@ export class SnakeStore extends ComponentStore<ISnakeState> {
           moveContext = { isXAxis: true, isMovePositive: false, isOffsetPositive: true, x: el.x, y: el.y };
         }
 
-        return this.getHeadElementPosition(moveContext, LENGTH_X, LENGTH_Y, cells);
+        let headElPos = this.getHeadElementPosition(moveContext, LENGTH_X, LENGTH_Y, cells);
+
+        if (cells.find(({ position, hasBuff }) =>
+          position.x === headElPos.x && position.y === headElPos.y && hasBuff)) {
+          isSnakeOnBuff = true;
+        }
+
+        return headElPos
       }
       return arr[index - 1];
     });
 
-    return Object.assign({}, snake);
+    return { snake: Object.assign({}, snake), isSnakeOnBuff };
   }
 
   private getHeadElementPosition({ isXAxis, isMovePositive, isOffsetPositive, x, y },
@@ -112,6 +128,7 @@ export class SnakeStore extends ComponentStore<ISnakeState> {
 
         return {
           hasElement: false,
+          hasBuff: false,
           position: { x: x++, y }
         };
       })
@@ -144,8 +161,8 @@ export class SnakeStore extends ComponentStore<ISnakeState> {
     return elementsPosition;
   }
 
-  private getUpdatedCells(cells: ISnakeCell[], snake: ISnake) {
-    return cells.map(cell => {
+  private getUpdatedCells(cells: ISnakeCell[], snake: ISnake, hasBuff: boolean) {
+    let updatedCells = cells.map(cell => {
       const snakeElementIndex = snake.elementsPosition.findIndex(el => cell.position.x === el.x && cell.position.y === el.y);
 
       return {
@@ -157,13 +174,38 @@ export class SnakeStore extends ComponentStore<ISnakeState> {
         }
       };
     });
+
+    if (!hasBuff) {
+      while (true) {
+        let hasFoundCellToBuff = false;
+        const x = Math.floor(Math.random() * LENGTH_X);
+        const y = Math.floor(Math.random() * LENGTH_Y);
+
+        for (let i = 0; i < cells.length; i++) {
+          const tempCell = cells.findIndex(cell => cell.position.x === x && cell.position.y === y);
+          if (tempCell !== -1 && !updatedCells[tempCell].hasElement) {
+            updatedCells = updatedCells.map(el => ({...el, hasBuff: false}))
+            updatedCells[tempCell].hasBuff = true;
+            hasFoundCellToBuff = true;
+            break;
+          }
+        }
+
+        if (hasFoundCellToBuff) {
+          break;
+        }
+      }
+    }
+
+    return updatedCells;
   }
 
   public readonly onSnakeUpdate = this.effect((snake$: Observable<ISnake>) => {
     return snake$.pipe(
-      withLatestFrom(this.cells$),
-      tap(([snake, cells]) => {
-        this.updateCells(this.getUpdatedCells(cells, snake));
+      withLatestFrom(this.cells$, this.hasBuff$),
+      filter(([, cells]) => !!cells.length),
+      tap(([snake, cells, hasBuff]) => {
+        this.updateCells(this.getUpdatedCells(cells, snake, hasBuff));
       }),
     );
   });

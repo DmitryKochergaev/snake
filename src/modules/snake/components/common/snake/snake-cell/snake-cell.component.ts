@@ -12,6 +12,9 @@ export class SnakeCellComponent {
 
   @Input() hasElement: boolean = false;
 
+  @Input() hasBuff: boolean = false;
+
   constructor() {
   }
+
 }

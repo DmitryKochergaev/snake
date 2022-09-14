@@ -4,6 +4,7 @@ export interface ISnake {
 
 export interface ISnakeCell {
   hasElement: boolean;
+  hasBuff: boolean;
   position: IPosition;
 }
 

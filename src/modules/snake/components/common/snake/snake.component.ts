@@ -11,7 +11,7 @@ import { Directions } from "../../../models/snake.model";
 })
 export class SnakeComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  @Input() public speed = 300;
+  @Input() public speed = 200;
 
   public cells$ = this.snakeStore.cells$;
 
@@ -25,6 +25,13 @@ export class SnakeComponent implements OnInit, AfterViewInit, OnDestroy {
   public ngOnInit(): void {
     this.snakeStore.setCells(400); //todo adaptive
     this.snakeStore.setSnake(14, 5, 5);
+
+    //todo setting on the right
+    //sliding out like in site-card project, but from left corner
+    //score
+    //stop/start/pause buttons
+    //losing no touch
+    //fix last title turn bug
   }
 
   public ngAfterViewInit(): void {
