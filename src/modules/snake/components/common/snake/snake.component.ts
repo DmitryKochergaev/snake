@@ -11,7 +11,7 @@ import { BehaviorSubject, combineLatest, filter, interval, takeUntil, tap } from
 })
 export class SnakeComponent implements AfterViewInit, OnDestroy {
 
-  @Input() public speed = 200;
+  @Input() public speed = 500;
 
   public cells$ = this.snakeStore.cells$;
 
@@ -30,7 +30,6 @@ export class SnakeComponent implements AfterViewInit, OnDestroy {
   //sliding out like in site-card project, but from left corner
   //score
   //stop/start/pause buttons
-  //fix last title turn bug
   //increase speed by length of the snake ?
   //double pressed buttons move ???
   //try transition time in open 2 user settings

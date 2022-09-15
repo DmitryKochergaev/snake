@@ -109,8 +109,8 @@ export class SnakeStore extends ComponentStore<ISnakeState> {
                                  offsetX: number, offsetY: number, cells: ISnakeCell[]): IPosition {
     let offset = isMovePositive ? 1 : -1;
 
-    if (!cells.find(cell => cell.position.x === x + ((isXAxis ? 1 : 0) * isMovePositive ? 1 : -1)
-      && cell.position.y === y + ((isXAxis ? 0 : 1) * isMovePositive ? 1 : -1))
+    if (!cells.find(cell => cell.position.x === x + ((isXAxis ? 1 : 0) * (isMovePositive ? 1 : -1))
+      && cell.position.y === y + ((isXAxis ? 0 : 1) * (isMovePositive ? 1 : -1)))
     ) {
       offset += (isXAxis ? offsetX : offsetY) * (isOffsetPositive ? 1 : -1);
     }
