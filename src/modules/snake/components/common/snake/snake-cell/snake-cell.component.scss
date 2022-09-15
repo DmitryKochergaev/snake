@@ -1,6 +1,7 @@
 .snake-cell {
   height: 100%;
   border: 1px solid rgba(95, 95, 95, 0.53);
+  //transition: background 1s ease-in;
 
   &_with-element {
     background-color: white;
