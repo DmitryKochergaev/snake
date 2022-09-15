@@ -1,12 +1,13 @@
 import { Injectable } from "@angular/core";
 import { ComponentStore } from "@ngrx/component-store";
-import { Directions, IPosition, ISnake, ISnakeCell } from "../../models/snake.model";
+import { Directions, GameState, IPosition, ISnake, ISnakeCell } from "../../models/snake.model";
 import { filter, Observable, tap, withLatestFrom } from "rxjs";
 import copy from "fast-copy";
 
 export interface ISnakeState {
   cells: ISnakeCell[];
   snake: ISnake | null;
+  gameState: GameState | null;
   previousSnake: ISnake | null;
   currentDirection: Directions | null;
 }
@@ -21,16 +22,30 @@ export class SnakeStore extends ComponentStore<ISnakeState> {
 
   public readonly snake$ = this.select(({ snake }) => snake);
 
+  public readonly isGameOn$ = this.select(({ gameState }) => gameState === 'on');
+
+  public readonly isGameLost$ = this.select(({ gameState }) => gameState === 'lost');
+
+  public readonly isGamePaused$ = this.select(({ gameState }) => gameState === 'paused');
+
   constructor() {
     super({
       cells: [],
       snake: null,
+      gameState: null,
       previousSnake: null,
       currentDirection: null,
     });
 
     this.onSnakeUpdate(this.snake$);
   }
+
+  public readonly setGameState = this.updater((state, gameState: GameState) => {
+    return {
+      ...state,
+      gameState
+    };
+  });
 
   public readonly updateCells = this.updater((state, cells: ISnakeCell[]) => {
     return {
@@ -213,6 +228,20 @@ export class SnakeStore extends ComponentStore<ISnakeState> {
     return { isSnakeOnBuff, updatedCells };
   }
 
+  private isSnakeIntersectedWithItself({ elementsPosition }: ISnake): boolean {
+    let res = false;
+
+    for (let i = 0; i < elementsPosition.length; i++) {
+      for (let j = 0; j < elementsPosition.length; j++) {
+        if (elementsPosition[i].x === elementsPosition[j].x && elementsPosition[i].y === elementsPosition[j].y && i !== j) {
+          res = true;
+        }
+      }
+    }
+
+    return res;
+  }
+
   public readonly onSnakeUpdate = this.effect((snake$: Observable<ISnake>) => {
     return snake$.pipe(
       withLatestFrom(this.cells$),
@@ -224,6 +253,10 @@ export class SnakeStore extends ComponentStore<ISnakeState> {
 
         if (isSnakeOnBuff) {
           this.increaseSnake();
+        }
+
+        if (this.isSnakeIntersectedWithItself(snake)) {
+          this.setGameState('lost');
         }
       }),
     );

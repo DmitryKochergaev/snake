@@ -16,3 +16,4 @@ export interface IPosition {
 
 export type Directions = 'up' | 'right' | 'down' | 'left';
 
+export type GameState = 'on' | 'lost' | 'paused';

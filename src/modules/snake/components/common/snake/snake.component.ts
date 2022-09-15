@@ -1,7 +1,7 @@
-import { AfterViewInit, Component, HostListener, Input, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, HostListener, Input, OnDestroy } from '@angular/core';
 import { SnakeStore } from "../../../stores/snake/snake.store";
-import { interval, Subject, takeUntil, tap } from "rxjs";
 import { Directions } from "../../../models/snake.model";
+import { BehaviorSubject, combineLatest, filter, interval, takeUntil, tap } from "rxjs";
 
 @Component({
   selector: 'app-snake',
@@ -9,31 +9,30 @@ import { Directions } from "../../../models/snake.model";
   styleUrls: ['./snake.component.scss'],
   providers: [SnakeStore]
 })
-export class SnakeComponent implements OnInit, AfterViewInit, OnDestroy {
+export class SnakeComponent implements AfterViewInit, OnDestroy {
 
-  @Input() public speed = 400;
+  @Input() public speed = 200;
 
   public cells$ = this.snakeStore.cells$;
 
-  private destroy$: Subject<boolean> = new Subject<boolean>();
+  private destroy$ = new BehaviorSubject<boolean>(false);
+
+  private gameIntervalStopper$ = combineLatest([this.destroy$, this.snakeStore.isGameLost$]).pipe(
+    filter(([destroyed, gameLost]) => destroyed || gameLost),
+  );
 
   private direction: Directions = 'left';
 
-  constructor(private snakeStore: SnakeStore) {
+  constructor(private snakeStore: SnakeStore, private cdr: ChangeDetectorRef) {
   }
 
-  public ngOnInit(): void {
-    this.snakeStore.setCells(400); //todo adaptive
-    this.snakeStore.setSnake(4, 5, 5);
-
-    //todo setting on the right
-    //sliding out like in site-card project, but from left corner
-    //score
-    //stop/start/pause buttons
-    //losing on move on itself
-    //fix last title turn bug
-  }
-
+  //todo setting on the right
+  //sliding out like in site-card project, but from left corner
+  //score
+  //stop/start/pause buttons
+  //fix last title turn bug
+  //increase speed by length of the snake ?
+  //double pressed buttons move ???
   public ngAfterViewInit(): void {
     this.startGame();
   }
@@ -43,10 +42,16 @@ export class SnakeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private startGame(): void {
+    this.snakeStore.setCells(400); //todo adaptive
+    this.snakeStore.setSnake(3, 5, 5);
+    this.snakeStore.setGameState('on');
+
     interval(this.speed).pipe(
       tap(() => this.tick()),
-      takeUntil(this.destroy$),
+      takeUntil(this.gameIntervalStopper$),
     ).subscribe();
+
+    this.cdr.detectChanges();
   }
 
   private tick(): void {
