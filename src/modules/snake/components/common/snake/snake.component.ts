@@ -33,6 +33,7 @@ export class SnakeComponent implements AfterViewInit, OnDestroy {
   //increase speed by length of the snake ?
   //double pressed buttons move ???
   //try transition time in open 2 user settings
+  //add fireworks on snake increase
   public ngAfterViewInit(): void {
     this.startGame();
   }
