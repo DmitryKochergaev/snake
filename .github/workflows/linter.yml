@@ -1,19 +1,19 @@
-name: KEKW-Linter
-
-on: push
-
-jobs:
-  my-lint:
-    name: lint all files
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Running kekw linter omg
-        uses: github/super-linter@v3.17.0
-        env:
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
+# name: My-Linter
+#
+# on: push
+#
+# jobs:
+#   my-lint:
+#     name: lint all files
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+#
+#       - name: Running my linter omg
+#         uses: github/super-linter@v3.17.0
+#         env:
+#           DEFAULT_BRANCH: main
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#
+#
