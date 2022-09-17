@@ -1,0 +1,14 @@
+name: Angular CI
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: npm install and npm run CI commands
+        run: |
+          npm i
+          npm run test:prod
+          npm run build:prod
